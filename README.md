@@ -111,7 +111,7 @@ Probability Breakdown:
 Clone the repository:
 
 ```
-git clone https://github.com/your-username/flood-risk-prediction.git
+git clone https://github.com/logitechsoumili/Flood_Risk_Prediction.git
 cd flood-risk-prediction
 ```
 
