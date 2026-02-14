@@ -1,43 +1,70 @@
-# 🌊 Flood Risk Prediction System
+# ⚠️ Multi-Hazard Disaster Risk Prediction System
 
-An end-to-end machine learning system for assessing flood risk using hydrological indicators and advanced machine learning techniques.
+An end-to-end machine learning system for assessing multiple disaster risks including floods and heatwaves using meteorological and hydrological indicators with advanced machine learning techniques.
 
 ---
 
 ## 📌 Problem Statement
 
-India experiences frequent natural disasters, with floods being one of the most recurring and destructive hazards. Rapid urbanization, climate variability, and changing rainfall patterns increase the vulnerability of many regions to flooding.
+India experiences frequent natural disasters, with floods and heatwaves being among the most recurring and destructive hazards. Rapid urbanization, climate variability, and changing weather patterns significantly increase the vulnerability of many regions to multiple disaster types.
 
 Early risk assessment based on environmental indicators can help in:
 
-- Proactive disaster preparedness  
-- Infrastructure planning  
+- Proactive multi-hazard disaster preparedness  
+- Infrastructure and urban planning  
 - Risk-aware decision making  
 - Resource allocation during extreme weather events  
+- Early warning system deployment
 
-This project aims to develop a machine learning-based system that predicts **flood risk levels** using key hydrological and environmental indicators such as rainfall, river discharge, water level, elevation, and historical flood occurrence.
+This project aims to develop a comprehensive machine learning-based system that predicts **multiple disaster risk levels** including:
+
+- **Flood Risk Classification**: Low, Medium, High based on hydrological indicators (rainfall, river discharge, water level, elevation, historical flood occurrence)
+- **Heatwave Risk Classification**: Binary prediction of heat stress conditions using atmospheric indicators (temperature, humidity, wind speed, pressure, precipitation)
 
 ---
 
 ## 🎯 Project Objective
 
-To design and deploy a flood risk prediction system that:
+To design and deploy a comprehensive disaster risk prediction system that:
 
-- Identifies hydrological stress patterns
-- Classifies regions into **Low, Medium, and High risk**
-- Provides real-time risk assessment through a web interface
-- Demonstrates practical application of ML in environmental risk modeling
+- **Flood Module**: Identifies hydrological stress patterns and classifies regions into Low, Medium, and High risk categories
+- **Heatwave Module**: Predicts atmospheric heat stress conditions and identifies high-risk thermal events
+- Provides real-time risk assessment through an integrated web interface
+- Demonstrates practical application of ML in environmental and climate risk modeling
+- Delivers interpretable, actionable risk insights for disaster preparedness
+
+---
+
+## 📁 Project Structure
+
+```
+Disaster_Risk_Prediction/
+├── app.py                              
+├── requirements.txt                       
+├── README.md                             
+├── data/
+│   ├── flood_dataset.csv                 
+│   └── heatwave_dataset.csv              
+├── models/
+│   ├── flood_risk_model.pkl             
+│   └── heatwave_model.pkl                
+└── notebooks/
+    ├── flood_model_training.ipynb        
+    └── heatwave_model_training.ipynb 
+```
 
 ---
 
 ## 🧠 Methodology
 
-### 1️⃣ Data Preparation
-- Train-test split performed before clustering
-- StandardScaler applied for clustering
+### 🌊 Flood Risk Module
+
+#### 1️⃣ Data Preparation
+- Train-test split performed before clustering (prevents data leakage)
+- StandardScaler applied for feature normalization
 - KMeans fitted only on training data to prevent leakage
 
-### 2️⃣ Risk Category Derivation (Unsupervised Learning)
+#### 2️⃣ Risk Category Derivation (Unsupervised Learning)
 - KMeans clustering applied on hydrological features
 - Clusters interpreted based on:
   - Water Level
@@ -46,118 +73,165 @@ To design and deploy a flood risk prediction system that:
   - Historical Flood Presence
 - Risk levels labeled as **Low, Medium, High**
 
-### 3️⃣ Supervised Classification
+#### 3️⃣ Supervised Classification
 - XGBoost multi-class classifier trained on derived risk labels
-- Model learns nonlinear hydrological boundaries
-- Final model achieved **~98% test accuracy**
+- Model learns non-linear hydrological boundaries
+- Cross-validation applied for robust performance estimation
+
+### 🔥 Heatwave Risk Module
+
+#### 1️⃣ Data Preparation
+- Temperature threshold-based labeling (Heatwave ≥ 40°C)
+- Train-test stratified split to maintain class balance
+- StandardScaler applied to all features
+
+#### 2️⃣ Label Engineering
+- Heatwave condition: Binary classification (Yes/No)
+- Direct temperature threshold features excluded to prevent data leakage
+- Model learns indirect atmospheric patterns
+
+#### 3️⃣ Model Selection
+- Random Forest Classifier for robust tabular weather data performance
+- Emphasis on F1 Score over accuracy due to class imbalance
+- Feature importance analysis for interpretability
 
 ---
 
 ## 📊 Model Performance
 
-- Test Accuracy: **98.8%**
-- Macro F1 Score: **0.98**
+### Flood Risk Classifier (XGBoost)
+
+| Metric | Value |
+|--------|-------|
+| Test Accuracy | **98.8%** |
+| Macro F1 Score | **0.98** |
+| Weighted Precision | **0.99** |
+| Weighted Recall | **0.99** |
+
+**Key Insights:**
 - Strong generalization across stratified test split
+- Excellent performance on all three risk classes
+- Feature importance analysis shows:
+  - Historical Flood Presence
+  - Water Level
+  - River Discharge
 
-Feature importance analysis shows that:
-- Historical Flood Presence
-- Water Level
-- River Discharge  
+### Heatwave Risk Classifier (Random Forest)
 
-are the most influential factors in classification.
+| Metric | Value |
+|--------|-------|
+| Test Accuracy | 96.5% |
+| F1 Score | 91% |
+| ROC-AUC | 99% |
 
----
-
-## ⚠ Challenges Faced
-
-During initial experimentation, binary flood occurrence prediction yielded approximately 50% accuracy, indicating limited predictive signal in the synthetic dataset.
-
-To address this:
-
-- Risk categories were derived using unsupervised clustering
-- The problem was reframed as risk classification instead of direct flood occurrence prediction
-- This approach ensured structured and interpretable label formation
-
-This pivot improved model reliability and interpretability.
+**Key Insights:**
+- Robust prediction of heat stress conditions
+- Balanced precision and recall for early warning capabilities
+- Top features: Temperature anomalies, humidity, wind patterns
 
 ---
 
-## 💻 Deployment
+## 💻 Deployment Architecture
 
-The system is deployed using **Streamlit** and includes:
+The system is deployed using **Streamlit** with a multi-page interface including:
 
-- Risk assessment dashboard
-- KPI metrics (Predicted Risk, Confidence)
-- Risk probability visualization
-- Model insights section
-- Corporate-style interface
+### Pages
 
----
+1. **Flood Risk Assessment**
+   - City-based flood risk prediction
+   - Real-time weather data integration
+   - Risk probability visualization
+   - Geospatial mapping with folium
+   - Hydrological indicators dashboard
 
-## 🌤 Weather API Integration
+2. **Heatwave Risk Assessment**
+   - Atmospheric heat stress prediction
+   - Comprehensive weather analytics
+   - Heatwave probability metrics
+   - Location-based risk visualization
+   - Warning system indicators
 
-The system integrates real-time weather data to enhance risk prediction:
+3. **Model Insights**
+   - Flood model architecture and methodology
+   - Heatwave model approach and rationale
+   - Feature importance explanations
+   - Validation strategy documentation
+   - Algorithm selection justification
 
-### OpenWeather API
-- **Purpose**: Fetch live weather conditions for any city
-- **Data Retrieved**:
-  - Rainfall (1-hour precipitation in mm)
-  - Temperature (°C)
-  - Humidity (%)
-  - Geographic coordinates (latitude, longitude)
-- **Configuration**: Requires free API key from [OpenWeather](https://openweathermap.org/api)
-- **Rate Limit**: 60 calls/minute (free tier)
-
-### Open-Meteo API
-- **Purpose**: Fetch elevation data for risk assessment modulation
-- **Data Retrieved**: 
-  - Elevation (meters above sea level)
-- **Advantage**: No API key required, free and open-source
-
-### Data Flow
-1. User enters city name in Streamlit app
-2. City is geocoded to coordinates via OpenWeather API
-3. Real-time weather data is fetched
-4. Elevation is retrieved from Open-Meteo API
-5. Hydrological features are computed:
-   - River Discharge = 2000 + (rainfall × 10)
-   - Water Level = 4 + (rainfall × 0.02)
-6. XGBoost model predicts flood risk category
-7. Results displayed with geospatial map visualization
+4. **About**
+   - Project overview
+   - ML concepts applied
+   - System architecture
+   - Development methodology
 
 ---
 
 ## 🛠 Technology Stack
 
-- Python  
-- Scikit-learn  
-- XGBoost  
-- Streamlit  
-- Matplotlib  
-- Pandas  
-- NumPy  
+**Core Machine Learning:**
+- Scikit-learn (preprocessing, Random Forest)
+- XGBoost (gradient boosting classifier)
+
+**Data Processing:**
+- Pandas (data manipulation)
+- NumPy (numerical computing)
+
+**Visualization:**
+- Matplotlib (statistical plots)
+- Folium (geospatial mapping)
+
+**Deployment & APIs:**
+- Streamlit (web interface)
+- Requests (HTTP client)
+- Streamlit-folium (map integration)
+
+**Additional Tools:**
+- Joblib (model serialization)
+- Python 3.8+
+
+---
+
+## 🌐 API Integration
+
+The system integrates with **OpenWeather API** and **Open-Meteo API** to fetch real-time weather data (rainfall, temperature, humidity) and elevation information, which are used as input features for the flood risk and heatwave risk prediction models to provide accurate, location-based disaster risk assessments.
 
 ---
 
 ## 🚀 How to Run Locally
 
-1. **Install dependencies**
+### Prerequisites
+- Python 3.8 or higher
+- Git installed on your system
+- Internet connection for API calls
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/logitechsoumili/Disaster_Risk_Prediction.git
+   cd Disaster_Risk_Prediction
+   ```
+
+2. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Get OpenWeather API Key**
+3. **Get OpenWeather API Key**
    - Sign up at [OpenWeather](https://openweathermap.org/api) (free tier available)
    - Copy your API key
 
-3. **Configure Streamlit Secrets**
-   - Create `.streamlit/secrets.toml` in the project root
-   - Add your API key:
-     ```toml
-     OPENWEATHER_API_KEY = "your_api_key_here"
-     ```
+4. **Configure Streamlit Secrets**
+   - Create `.streamlit/secrets.toml` in the project root:
+   ```bash
+   mkdir .streamlit
+   ```
+   - Add your API key to `.streamlit/secrets.toml`:
+   ```toml
+   OPENWEATHER_API_KEY = "your_api_key_here"
+   ```
 
-4. **Run the application**
+5. **Run the application**
    ```bash
    streamlit run app.py
    ```
@@ -168,7 +242,13 @@ The app will open in your default browser at `http://localhost:8501`
 
 ## 📈 Future Enhancements
 
-* Multi-hazard expansion (Cyclone / Heatwave modules)
-* Integration with real-world meteorological datasets
-* Geospatial risk heatmap visualization
-* API-based deployment
+- Multi-hazard expansion (Cyclone, Earthquake, Drought modules)
+- Integration with real-world meteorological datasets (IMD, NOAA)
+- Interactive geospatial risk heatmap visualization
+- REST API for programmatic access to predictions
+- Mobile application for on-the-go risk assessment
+- Time-series forecasting with LSTM/Prophet
+- Cloud deployment (AWS, GCP, Azure)
+- Push notifications for high-risk alerts
+- Database integration for historical data storage
+- Multi-language support for regional deployment
