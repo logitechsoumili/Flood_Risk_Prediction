@@ -4,20 +4,6 @@ An end-to-end machine learning system for assessing flood risk using hydrologica
 
 ---
 
-## 📷 Application Preview
-
-### 🔹 Risk Assessment Dashboard
-
-![Risk Dashboard](assets/dashboard.png)
-
----
-
-### 🔹 Model Insights & Feature Importance
-
-![Model Insights](assets/model_insights.png)
-
----
-
 ## 📌 Problem Statement
 
 India experiences frequent natural disasters, with floods being one of the most recurring and destructive hazards. Rapid urbanization, climate variability, and changing rainfall patterns increase the vulnerability of many regions to flooding.

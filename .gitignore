@@ -22,6 +22,3 @@ disaster_ml/
 # OS
 .DS_Store
 Thumbs.db
-
-# Models (optional)
-# models/*.pkl
