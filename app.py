@@ -401,10 +401,4 @@ else:
         """
     )
 
-# ------------------------------------------------
-# Footer
-# ------------------------------------------------
 st.divider()
-st.caption(
-    "Disaster Risk Prediction System | Developed by Soumili Saha | ML Project 2026"
-)
