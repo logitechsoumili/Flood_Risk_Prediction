@@ -119,7 +119,7 @@ if page == "Flood Risk":
         [0, 1]
     )
 
-    if st.button("Fetch & Run Risk Assessment"):
+    if st.button("Run Assessment"):
 
         if not city:
             st.error("Please enter a city name.")
@@ -233,7 +233,7 @@ elif page == "Heatwave Risk":
 
     city = st.text_input("Enter City Name for Heatwave Assessment")
 
-    if st.button("Fetch & Run Heatwave Assessment"):
+    if st.button("Run Assessment"):
 
         if not city:
             st.error("Please enter a city name.")
@@ -300,81 +300,65 @@ elif page == "Model Insights":
     st.title("Model Insights")
 
     hazard = st.selectbox(
-        "Select Hazard Model",
-        ["Flood Model", "Heatwave Model"]
+        "Select Hazard",
+        ["Flood", "Heatwave"]
     )
 
     st.divider()
 
-    if hazard == "Flood Model":
+    if hazard == "Flood":
 
-        st.subheader("Flood Model Performance")
+        st.markdown("## Flood Risk Model")
 
-        st.metric("Model Type", "XGBoost Classifier")
-        st.metric("Evaluation Strategy", "Stratified Train-Test Split")
-        st.metric("Feature Count", "5 Hydrological Features")
+        st.markdown("""
+        ### Model Type
+        XGBoost Classifier
 
-        st.divider()
+        ### Problem Framing
+        Multi-class classification (Low / Medium / High Risk)
 
-        st.subheader("Feature Importance")
+        ### Key Features Used
+        - Rainfall
+        - River Discharge
+        - Water Level
+        - Elevation
+        - Historical Flood Indicator
 
-        importance = flood_model.feature_importances_
+        ### Why XGBoost?
+        - Handles non-linear relationships well
+        - Performs strongly on structured tabular data
+        - Provides feature importance analysis
 
-        features = [
-            "Rainfall",
-            "River Discharge",
-            "Water Level",
-            "Elevation",
-            "Historical Flood Indicator"
-        ]
-
-        fig, ax = plt.subplots()
-        ax.barh(features, importance)
-        ax.set_title("Flood Model Feature Importance")
-        st.pyplot(fig)
-
-        st.info(
-            """
-            The Flood model predicts hydrological risk levels (Low, Medium, High)
-            using derived hydrological indicators and elevation data.
-            """
-        )
+        ### Validation Strategy
+        Stratified train-test split to maintain class balance.
+        """)
 
     else:
 
-        st.subheader("Heatwave Model Performance")
+        st.markdown("## Heatwave Risk Model")
 
-        st.metric("Model Type", "Random Forest Classifier")
-        st.metric("Data Leakage Prevention", "max_temperature excluded from features")
-        st.metric("Evaluation Metric", "F1 Score prioritized due to class imbalance")
+        st.markdown("""
+        ### Model Type
+        Random Forest Classifier
 
-        st.divider()
+        ### Problem Framing
+        Binary classification (Heatwave / No Heatwave)
 
-        st.subheader("Feature Importance")
+        ### Label Definition
+        Heatwave defined using temperature threshold (≥ 40°C).
 
-        heatwave_features = [
-            "Min Temperature",
-            "Max Humidity",
-            "Min Humidity",
-            "Wind Speed",
-            "Surface Pressure",
-            "Rainfall"
-        ]
+        ### Data Leakage Prevention
+        The direct threshold feature (max_temperature) was excluded
+        to ensure the model learned indirect atmospheric patterns.
 
-        importance = heatwave_model.feature_importances_
+        ### Why Random Forest?
+        - Strong performance on tabular weather data
+        - Robust to class imbalance
+        - Balanced precision and recall (high F1 score)
 
-        fig, ax = plt.subplots()
-        ax.barh(heatwave_features, importance)
-        ax.set_title("Heatwave Model Feature Importance")
-        st.pyplot(fig)
-
-        st.info(
-            """
-            Heatwave classification is derived from temperature thresholds.
-            To prevent data leakage, max_temperature was excluded during training.
-            The model learns indirect atmospheric patterns associated with heat stress.
-            """
-        )
+        ### Evaluation Focus
+        F1 Score prioritized over accuracy due to class imbalance.
+        """)
 
 # ==============================================================
 # PAGE 4 — ABOUT
