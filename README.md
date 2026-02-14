@@ -1,163 +1,137 @@
 # 🌊 Flood Risk Prediction System
 
-AI-powered environmental flood risk classification using machine learning and an interactive Gradio interface.
-
-This project predicts flood risk levels (Low, Medium, High) based on environmental, hydrological, and socio-economic indicators.
+An end-to-end machine learning system for assessing flood risk using hydrological indicators and advanced machine learning techniques.
 
 ---
 
-## 🚀 Overview
+## 📷 Application Preview
 
-Flood risk assessment is critical for disaster preparedness and mitigation.
-This project implements an end-to-end machine learning pipeline:
+### 🔹 Risk Assessment Dashboard
 
-* Risk label derivation using **unsupervised clustering**
-* Multi-model comparison using supervised learning
-* Model evaluation with accuracy, F1-score, and recall
-* Deployment using an interactive **Gradio web interface**
-
-The system classifies environmental conditions into:
-
-* 🟢 Low Risk
-* 🟡 Medium Risk
-* 🔴 High Risk
+![Risk Dashboard](assets/dashboard.png)
 
 ---
 
-## 🧠 Machine Learning Pipeline
+### 🔹 Model Insights & Feature Importance
 
-### 1️⃣ Risk Derivation (Unsupervised Learning)
-
-Since multi-class flood risk labels were not predefined in the dataset, risk levels were generated using **KMeans clustering** on key hydrological indicators:
-
-* Rainfall
-* River Discharge
-* Water Level
-* Elevation
-* Historical Floods
-
-Clusters were interpreted and labeled as Low, Medium, and High risk based on environmental characteristics.
+![Model Insights](assets/model_insights.png)
 
 ---
 
-### 2️⃣ Model Training & Comparison
+## 📌 Problem Statement
 
-The following models were evaluated:
+India experiences frequent natural disasters, with floods being one of the most recurring and destructive hazards. Rapid urbanization, climate variability, and changing rainfall patterns increase the vulnerability of many regions to flooding.
 
-* Decision Tree
-* Random Forest
-* Gradient Boosting
-* XGBoost
+Early risk assessment based on environmental indicators can help in:
 
-Evaluation Metrics:
+- Proactive disaster preparedness  
+- Infrastructure planning  
+- Risk-aware decision making  
+- Resource allocation during extreme weather events  
 
-* Accuracy
-* Macro F1-score
-* Macro Recall
-* Confusion Matrix
-
-Ensemble boosting models demonstrated superior performance, achieving:
-
-* ~99% Accuracy
-* Balanced Recall across all risk classes
+This project aims to develop a machine learning-based system that predicts **flood risk levels** using key hydrological and environmental indicators such as rainfall, river discharge, water level, elevation, and historical flood occurrence.
 
 ---
 
-## 🎨 Gradio Web Interface
+## 🎯 Project Objective
 
-The project includes a styled interactive UI built with **Gradio Blocks**, featuring:
+To design and deploy a flood risk prediction system that:
 
-* Slider-based environmental inputs
-* Dynamic risk banner (color-coded)
-* Probability breakdown display
-* Clean two-column layout
-
-The interface allows users to simulate environmental conditions and visualize predicted flood risk in real time.
+- Identifies hydrological stress patterns
+- Classifies regions into **Low, Medium, and High risk**
+- Provides real-time risk assessment through a web interface
+- Demonstrates practical application of ML in environmental risk modeling
 
 ---
 
-## 📊 Example Output
+## 🧠 Methodology
 
-```
-🔴 HIGH RISK  
-High flood risk detected. Immediate caution advised.
+### 1️⃣ Data Preparation
+- Train-test split performed before clustering
+- StandardScaler applied for clustering
+- KMeans fitted only on training data to prevent leakage
 
-Probability Breakdown:
-- High: 85.51%
-- Low: 3.39%
-- Medium: 1.10%
-```
+### 2️⃣ Risk Category Derivation (Unsupervised Learning)
+- KMeans clustering applied on hydrological features
+- Clusters interpreted based on:
+  - Water Level
+  - River Discharge
+  - Elevation
+  - Historical Flood Presence
+- Risk levels labeled as **Low, Medium, High**
 
----
-
-## 🗂️ Project Structure
-
-```
-├── model_training.ipynb
-├── data
-│   └── flood_dataset.csv
-├── app.py
-├── models/
-│   ├── flood_risk_model.pkl
-│   ├── label_encoder.pkl
-│   └── feature_columns.pkl
-└── README.md
-```
+### 3️⃣ Supervised Classification
+- XGBoost multi-class classifier trained on derived risk labels
+- Model learns nonlinear hydrological boundaries
+- Final model achieved **~98% test accuracy**
 
 ---
 
-## ⚙️ Installation
+## 📊 Model Performance
 
-Clone the repository:
+- Test Accuracy: **98.8%**
+- Macro F1 Score: **0.98**
+- Strong generalization across stratified test split
 
-```
-git clone https://github.com/logitechsoumili/Flood_Risk_Prediction.git
-cd flood-risk-prediction
-```
+Feature importance analysis shows that:
+- Historical Flood Presence
+- Water Level
+- River Discharge  
 
-Install dependencies:
+are the most influential factors in classification.
 
-```
+---
+
+## ⚠ Challenges Faced
+
+During initial experimentation, binary flood occurrence prediction yielded approximately 50% accuracy, indicating limited predictive signal in the synthetic dataset.
+
+To address this:
+
+- Risk categories were derived using unsupervised clustering
+- The problem was reframed as risk classification instead of direct flood occurrence prediction
+- This approach ensured structured and interpretable label formation
+
+This pivot improved model reliability and interpretability.
+
+---
+
+## 💻 Deployment
+
+The system is deployed using **Streamlit** and includes:
+
+- Risk assessment dashboard
+- KPI metrics (Predicted Risk, Confidence)
+- Risk probability visualization
+- Model insights section
+- Corporate-style interface
+
+---
+
+## 🛠 Technology Stack
+
+- Python  
+- Scikit-learn  
+- XGBoost  
+- Streamlit  
+- Matplotlib  
+- Pandas  
+- NumPy  
+
+---
+
+## 🚀 How to Run Locally
+
+```bash
 pip install -r requirements.txt
-```
-
-Run the app:
-
-```
-python app.py
-```
-
-The app will launch locally at:
-
-```
-http://127.0.0.1:7860
-```
+streamlit run app.py
+````
 
 ---
 
-## 📦 Dependencies
+## 📈 Future Enhancements
 
-* Python 3.9+
-* scikit-learn
-* xgboost
-* pandas
-* numpy
-* gradio
-* joblib
-
----
-
-## ⚠️ Note on Dataset
-
-This project uses a synthetic flood risk dataset for educational and modeling purposes.
-The predictions demonstrate machine learning workflow and system design rather than real-time hydrological forecasting.
-
----
-
-## 🔮 Future Improvements
-
-* Integrate real-time weather APIs
-* Add elevation API support
-* Deploy on Hugging Face Spaces
-* Add map-based visualization
-* Incorporate real historical flood datasets
+* Multi-hazard expansion (Cyclone / Heatwave modules)
+* Integration with real-world meteorological datasets
+* Geospatial risk heatmap visualization
+* API-based deployment
