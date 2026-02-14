@@ -22,7 +22,8 @@ st.sidebar.info("Weather API Connected")
 # ------------------------------------------------
 # Load Model
 # ------------------------------------------------
-model = joblib.load("models/flood_risk_model.pkl")
+flood_model = joblib.load("models/flood_risk_model.pkl")
+heatwave_model = joblib.load("models/heatwave_model.pkl")
 
 risk_labels = ["Low", "Medium", "High"]
 
@@ -48,7 +49,6 @@ def fetch_weather(city):
 
     return rainfall, temperature, humidity, lat, lon
 
-
 def fetch_elevation(lat, lon):
     url = f"https://api.open-meteo.com/v1/elevation?latitude={lat}&longitude={lon}"
     response = requests.get(url)
@@ -59,19 +59,49 @@ def fetch_elevation(lat, lon):
     data = response.json()
     return data["elevation"][0]
 
+def fetch_weather_detailed(lat, lon):
+
+    url = (
+        f"https://api.open-meteo.com/v1/forecast?"
+        f"latitude={lat}&longitude={lon}"
+        f"&daily=temperature_2m_min,"
+        f"relative_humidity_2m_max,relative_humidity_2m_min,"
+        f"precipitation_sum"
+        f"&hourly=surface_pressure,wind_speed_10m"
+        f"&forecast_days=1"
+        f"&timezone=auto"
+    )
+
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        return None
+
+    data = response.json()
+
+    min_temp = data["daily"]["temperature_2m_min"][0]
+    max_humidity = data["daily"]["relative_humidity_2m_max"][0]
+    min_humidity = data["daily"]["relative_humidity_2m_min"][0]
+    rainfall = data["daily"]["precipitation_sum"][0]
+
+    pressure = data["hourly"]["surface_pressure"][0]
+    wind_speed = data["hourly"]["wind_speed_10m"][0]
+
+    return min_temp, max_humidity, min_humidity, wind_speed, pressure, rainfall
+
 # ------------------------------------------------
 # Sidebar Navigation
 # ------------------------------------------------
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Go to",
-    ["Risk Assessment", "Model Insights", "About"]
+    ["Flood Risk", "Heatwave Risk", "Model Insights", "About"]
 )
 
 # ==============================================================
-# PAGE 1 — RISK ASSESSMENT
+# PAGE 1 — FLOOD RISK
 # ==============================================================
-if page == "Risk Assessment":
+if page == "Flood Risk":
 
     st.title("Flood Risk Prediction System")
     st.markdown(
@@ -112,8 +142,8 @@ if page == "Risk Assessment":
                 input_data = np.array([[rainfall, discharge, water_level, elevation, historical]])
 
                 with st.spinner("Processing hydrological indicators..."):
-                    prediction = model.predict(input_data)
-                    probabilities = model.predict_proba(input_data)[0]
+                    prediction = flood_model.predict(input_data)
+                    probabilities = flood_model.predict_proba(input_data)[0]
 
                 risk_level = prediction[0]
 
@@ -191,9 +221,79 @@ if page == "Risk Assessment":
                     - **High Risk** → Elevated likelihood of flooding — monitoring advised  
                     """)
 
+# ==============================================================
+# PAGE 2 — HEATWAVE RISK
+# ==============================================================
+elif page == "Heatwave Risk":
+
+    st.title("Heatwave Risk Prediction System")
+    st.markdown("AI-driven atmospheric heat stress classification model.")
+
+    st.divider()
+
+    city = st.text_input("Enter City Name for Heatwave Assessment")
+
+    if st.button("Fetch & Run Heatwave Assessment"):
+
+        if not city:
+            st.error("Please enter a city name.")
+        else:
+            weather_data = fetch_weather(city)
+
+            if weather_data is None:
+                st.error("City not found or API error.")
+                st.stop()
+
+            rainfall_now, temperature, humidity, lat, lon = weather_data
+
+            detailed = fetch_weather_detailed(lat, lon)
+
+            if detailed is None:
+                st.error("Detailed weather fetch failed.")
+            else:
+                min_temp, max_humidity, min_humidity, wind_speed, pressure, rainfall = detailed
+
+                input_data = np.array([[
+                    min_temp,
+                    max_humidity,
+                    min_humidity,
+                    wind_speed,
+                    pressure,
+                    rainfall
+                ]])
+
+                with st.spinner("Analyzing atmospheric heat indicators..."):
+                    prediction = heatwave_model.predict(input_data)
+                    probability = heatwave_model.predict_proba(input_data)[0][1]
+
+                if prediction[0] == 1:
+                    st.error("🔥 HIGH HEATWAVE RISK — Avoid outdoor exposure")
+                else:
+                    st.success("✅ LOW HEATWAVE RISK — Conditions Normal")
+
+                st.metric("Heatwave Probability", f"{probability * 100:.2f}%")
+
+                st.divider()
+
+                st.subheader("📍 Location Overview")
+
+                m = folium.Map(location=[lat, lon], zoom_start=10)
+
+                color = "red" if prediction[0] == 1 else "green"
+
+                folium.CircleMarker(
+                    location=[lat, lon],
+                    radius=12,
+                    color=color,
+                    fill=True,
+                    fill_color=color,
+                    popup=f"{city} — Heatwave Risk"
+                ).add_to(m)
+
+                folium_static(m, width=1200, height=400)
 
 # ==============================================================
-# PAGE 2 — MODEL INSIGHTS
+# PAGE 3 — MODEL INSIGHTS
 # ==============================================================
 elif page == "Model Insights":
 
@@ -208,7 +308,7 @@ elif page == "Model Insights":
 
     st.subheader("Feature Importance")
 
-    importance = model.feature_importances_
+    importance = flood_model.feature_importances_
 
     features = [
         "Rainfall (mm)",
@@ -235,7 +335,7 @@ elif page == "Model Insights":
     )
 
 # ==============================================================
-# PAGE 3 — ABOUT
+# PAGE 4 — ABOUT
 # ==============================================================
 else:
 
@@ -270,5 +370,5 @@ else:
 # ------------------------------------------------
 st.divider()
 st.caption(
-    "Flood Risk Prediction System v2.0 | Developed by Soumili Saha | ML Project 2026"
+    "Disaster Risk Prediction System | Developed by Soumili Saha | ML Project 2026"
 )
