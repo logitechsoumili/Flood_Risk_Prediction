@@ -94,6 +94,39 @@ The system is deployed using **Streamlit** and includes:
 
 ---
 
+## 🌤 Weather API Integration
+
+The system integrates real-time weather data to enhance risk prediction:
+
+### OpenWeather API
+- **Purpose**: Fetch live weather conditions for any city
+- **Data Retrieved**:
+  - Rainfall (1-hour precipitation in mm)
+  - Temperature (°C)
+  - Humidity (%)
+  - Geographic coordinates (latitude, longitude)
+- **Configuration**: Requires free API key from [OpenWeather](https://openweathermap.org/api)
+- **Rate Limit**: 60 calls/minute (free tier)
+
+### Open-Meteo API
+- **Purpose**: Fetch elevation data for risk assessment modulation
+- **Data Retrieved**: 
+  - Elevation (meters above sea level)
+- **Advantage**: No API key required, free and open-source
+
+### Data Flow
+1. User enters city name in Streamlit app
+2. City is geocoded to coordinates via OpenWeather API
+3. Real-time weather data is fetched
+4. Elevation is retrieved from Open-Meteo API
+5. Hydrological features are computed:
+   - River Discharge = 2000 + (rainfall × 10)
+   - Water Level = 4 + (rainfall × 0.02)
+6. XGBoost model predicts flood risk category
+7. Results displayed with geospatial map visualization
+
+---
+
 ## 🛠 Technology Stack
 
 - Python  
@@ -108,10 +141,28 @@ The system is deployed using **Streamlit** and includes:
 
 ## 🚀 How to Run Locally
 
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-````
+1. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Get OpenWeather API Key**
+   - Sign up at [OpenWeather](https://openweathermap.org/api) (free tier available)
+   - Copy your API key
+
+3. **Configure Streamlit Secrets**
+   - Create `.streamlit/secrets.toml` in the project root
+   - Add your API key:
+     ```toml
+     OPENWEATHER_API_KEY = "your_api_key_here"
+     ```
+
+4. **Run the application**
+   ```bash
+   streamlit run app.py
+   ```
+
+The app will open in your default browser at `http://localhost:8501`
 
 ---
 
