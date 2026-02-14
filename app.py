@@ -299,69 +299,121 @@ elif page == "Model Insights":
 
     st.title("Model Insights")
 
-    st.subheader("Performance Metrics")
-
-    st.metric("Test Accuracy", "98.8%")
-    st.metric("Macro F1 Score", "0.98")
+    hazard = st.selectbox(
+        "Select Hazard Model",
+        ["Flood Model", "Heatwave Model"]
+    )
 
     st.divider()
 
-    st.subheader("Feature Importance")
+    if hazard == "Flood Model":
 
-    importance = flood_model.feature_importances_
+        st.subheader("Flood Model Performance")
 
-    features = [
-        "Rainfall (mm)",
-        "River Discharge (m³/s)",
-        "Water Level (m)",
-        "Elevation (m)",
-        "Historical Floods"
-    ]
+        st.metric("Model Type", "XGBoost Classifier")
+        st.metric("Evaluation Strategy", "Stratified Train-Test Split")
+        st.metric("Feature Count", "5 Hydrological Features")
 
-    fig, ax = plt.subplots()
-    ax.barh(features, importance)
-    ax.set_title("Feature Importance")
-    ax.set_xlabel("Importance Score")
+        st.divider()
 
-    st.pyplot(fig)
+        st.subheader("Feature Importance")
 
-    st.info(
-        """
-        Model: XGBoost Classifier  
-        Features: 5 Hydrological Indicators  
-        Labeling Method: KMeans-derived risk categorization  
-        Validation Strategy: Stratified Train-Test Split  
-        """
-    )
+        importance = flood_model.feature_importances_
+
+        features = [
+            "Rainfall",
+            "River Discharge",
+            "Water Level",
+            "Elevation",
+            "Historical Flood Indicator"
+        ]
+
+        fig, ax = plt.subplots()
+        ax.barh(features, importance)
+        ax.set_title("Flood Model Feature Importance")
+        st.pyplot(fig)
+
+        st.info(
+            """
+            The Flood model predicts hydrological risk levels (Low, Medium, High)
+            using derived hydrological indicators and elevation data.
+            """
+        )
+
+    else:
+
+        st.subheader("Heatwave Model Performance")
+
+        st.metric("Model Type", "Random Forest Classifier")
+        st.metric("Data Leakage Prevention", "max_temperature excluded from features")
+        st.metric("Evaluation Metric", "F1 Score prioritized due to class imbalance")
+
+        st.divider()
+
+        st.subheader("Feature Importance")
+
+        heatwave_features = [
+            "Min Temperature",
+            "Max Humidity",
+            "Min Humidity",
+            "Wind Speed",
+            "Surface Pressure",
+            "Rainfall"
+        ]
+
+        importance = heatwave_model.feature_importances_
+
+        fig, ax = plt.subplots()
+        ax.barh(heatwave_features, importance)
+        ax.set_title("Heatwave Model Feature Importance")
+        st.pyplot(fig)
+
+        st.info(
+            """
+            Heatwave classification is derived from temperature thresholds.
+            To prevent data leakage, max_temperature was excluded during training.
+            The model learns indirect atmospheric patterns associated with heat stress.
+            """
+        )
 
 # ==============================================================
 # PAGE 4 — ABOUT
 # ==============================================================
 else:
-
+    
     st.title("About This Project")
 
     st.markdown(
         """
-        ### Flood Risk Prediction System
+        ## Multi-Hazard Disaster Risk Prediction System
 
-        This project demonstrates an end-to-end machine learning workflow:
+        This project demonstrates an end-to-end machine learning pipeline
+        for predicting environmental disaster risks using real-world meteorological data.
 
-        1. Initial binary flood prediction showed limited predictive signal.
-        2. Risk zones were derived using KMeans clustering.
-        3. A supervised XGBoost classifier was trained to predict derived risk levels.
-        4. The deployed system provides real-time risk assessment via Streamlit.
+        ### Implemented Hazard Modules
 
-        ### Technology Stack
+        🌊 Flood Risk Prediction
+        - Uses hydrological indicators derived from rainfall, discharge and elevation.
+        - Multi-class classification: Low, Medium, High risk.
+        - Model: XGBoost Classifier.
 
-        - Python  
-        - Scikit-learn  
-        - XGBoost  
-        - Streamlit  
-        - Matplotlib  
+        🔥 Heatwave Risk Prediction
+        - Binary classification of heat stress conditions.
+        - Label derived from temperature threshold.
+        - To prevent data leakage, direct temperature threshold features were excluded.
+        - Model: Random Forest Classifier.
 
-        This system illustrates practical application of unsupervised + supervised learning
-        for environmental risk modeling.
+        ### Key ML Concepts Applied
+
+        - Data preprocessing and cleaning
+        - Handling class imbalance using class_weight
+        - Stratified train-test splitting
+        - Model comparison (Logistic, RF, GB, XGBoost)
+        - Feature importance analysis
+        - API-based real-time inference
+        - Deployment using Streamlit
+
+        This system bridges classical machine learning and live meteorological deployment.
         """
     )
 
