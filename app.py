@@ -2,6 +2,7 @@ import streamlit as st
 import joblib
 import numpy as np
 import matplotlib.pyplot as plt
+import requests
 
 # ------------------------------------------------
 # Page Configuration
@@ -18,6 +19,39 @@ st.set_page_config(
 model = joblib.load("models/flood_risk_model.pkl")
 
 risk_labels = ["Low", "Medium", "High"]
+
+# ------------------------------------------------
+# API Configuration
+# ------------------------------------------------
+API_KEY = st.secrets["OPENWEATHER_API_KEY"]
+
+def fetch_weather(city):
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        return None
+
+    data = response.json()
+
+    rainfall = data.get("rain", {}).get("1h", 0)
+    temperature = data["main"]["temp"]
+    humidity = data["main"]["humidity"]
+    lat = data["coord"]["lat"]
+    lon = data["coord"]["lon"]
+
+    return rainfall, temperature, humidity, lat, lon
+
+
+def fetch_elevation(lat, lon):
+    url = f"https://api.open-meteo.com/v1/elevation?latitude={lat}&longitude={lon}"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        return None
+
+    data = response.json()
+    return data["elevation"][0]
 
 # ------------------------------------------------
 # Sidebar Navigation
@@ -40,67 +74,65 @@ if page == "Risk Assessment":
 
     st.divider()
 
-    st.subheader("Input Parameters")
+    st.subheader("City-Based Risk Assessment")
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        rainfall = st.number_input(
-            "Rainfall (mm)", min_value=0.0, value=150.0
-        )
-        discharge = st.number_input(
-            "River Discharge (m³/s)", min_value=0.0, value=2500.0
-        )
-
-    with col2:
-        water_level = st.number_input(
-            "Water Level (m)", min_value=0.0, value=5.0
-        )
-        elevation = st.number_input(
-            "Elevation (m)", min_value=0.0, value=4400.0
-        )
+    city = st.text_input("Enter City Name")
 
     historical = st.selectbox(
         "Historical Flood Indicator (0 = No, 1 = Yes)",
         [0, 1]
     )
 
-    # Basic validation
-    if rainfall > 1000:
-        st.warning("Rainfall unusually high. Please verify input values.")
+    if st.button("Fetch & Run Risk Assessment"):
 
-    if st.button("Run Risk Assessment"):
+        if not city:
+            st.error("Please enter a city name.")
+        else:
+            weather_data = fetch_weather(city)
 
-        input_data = np.array([[rainfall, discharge, water_level, elevation, historical]])
+            if weather_data is None:
+                st.error("City not found or API error.")
+            else:
+                rainfall, temperature, humidity, lat, lon = weather_data
 
-        with st.spinner("Processing hydrological indicators..."):
-            prediction = model.predict(input_data)
-            probabilities = model.predict_proba(input_data)[0]
+                elevation = fetch_elevation(lat, lon)
+                if elevation is None:
+                    elevation = 4400  # fallback
 
-        risk_level = prediction[0]
+                # Derived hydrological approximations
+                discharge = 2000 + (rainfall * 10)
+                water_level = 4 + (rainfall * 0.02)
 
-        st.divider()
-        st.subheader("Risk Assessment Summary")
+                input_data = np.array([[rainfall, discharge, water_level, elevation, historical]])
 
-        # KPI Metrics
-        col1, col2, col3 = st.columns(3)
+                with st.spinner("Processing hydrological indicators..."):
+                    prediction = model.predict(input_data)
+                    probabilities = model.predict_proba(input_data)[0]
 
-        with col1:
-            st.metric("Predicted Risk Level", risk_labels[risk_level])
+                risk_level = prediction[0]
 
-        with col2:
-            st.metric(
-                "Model Confidence",
-                f"{np.max(probabilities) * 100:.2f}%"
-            )
+                st.divider()
+                st.subheader("Risk Assessment Summary")
 
-        with col3:
-            st.metric(
-                "Historical Flood Indicator",
-                historical
-            )
+                col1, col2, col3 = st.columns(3)
 
-        st.divider()
+                with col1:
+                    st.metric("Predicted Risk Level", risk_labels[risk_level])
+
+                with col2:
+                    st.metric("Model Confidence", f"{np.max(probabilities) * 100:.2f}%")
+
+                with col3:
+                    st.metric("Elevation (m)", f"{elevation:.2f}")
+
+                st.divider()
+
+                st.subheader("Live Weather Data")
+
+                st.write(f"Rainfall (1h): {rainfall} mm")
+                st.write(f"Temperature: {temperature} °C")
+                st.write(f"Humidity: {humidity} %")
+
 
         # Probability Distribution Chart
         st.subheader("Risk Probability Distribution")
@@ -215,5 +247,5 @@ else:
 # ------------------------------------------------
 st.divider()
 st.caption(
-    "Flood Risk Prediction System v1.0 | Developed by Soumili Saha | ML Project 2026"
+    "Flood Risk Prediction System v2.0 | Developed by Soumili Saha | ML Project 2026"
 )
