@@ -7,3 +7,5 @@ plotly
 gradio
 xgboost
 requests
+folium
+streamlit-folium

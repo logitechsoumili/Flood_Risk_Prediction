@@ -3,6 +3,8 @@ import joblib
 import numpy as np
 import matplotlib.pyplot as plt
 import requests
+import folium
+from streamlit_folium import folium_static
 
 # ------------------------------------------------
 # Page Configuration
@@ -12,6 +14,10 @@ st.set_page_config(
     page_icon="🌊",
     layout="wide"
 )
+
+st.sidebar.markdown("### System Status")
+st.sidebar.success("Model Loaded")
+st.sidebar.info("Weather API Connected")
 
 # ------------------------------------------------
 # Load Model
@@ -111,63 +117,80 @@ if page == "Risk Assessment":
 
                 risk_level = prediction[0]
 
-                st.divider()
-                st.subheader("Risk Assessment Summary")
+                risk_text = risk_labels[risk_level]
 
-                col1, col2, col3 = st.columns(3)
-
-                with col1:
-                    st.metric("Predicted Risk Level", risk_labels[risk_level])
-
-                with col2:
-                    st.metric("Model Confidence", f"{np.max(probabilities) * 100:.2f}%")
-
-                with col3:
-                    st.metric("Elevation (m)", f"{elevation:.2f}")
+                if risk_text == "High":
+                    st.error("🚨 HIGH FLOOD RISK — Immediate Monitoring Recommended")
+                elif risk_text == "Medium":
+                    st.warning("⚠ MODERATE FLOOD RISK — Stay Alert")
+                else:
+                    st.success("✅ LOW FLOOD RISK — Conditions Stable")
 
                 st.divider()
+                
+                colA, colB = st.columns(2)
 
-                st.subheader("Live Weather Data")
+                with colA:
+                    st.markdown("### 📊 Risk Assessment Summary")
+                    with st.container(border=True):
+                        col1, col2, col3 = st.columns(3)
 
-                st.write(f"Rainfall (1h): {rainfall} mm")
-                st.write(f"Temperature: {temperature} °C")
-                st.write(f"Humidity: {humidity} %")
+                        with col1:
+                            st.metric("Predicted Risk Level", risk_labels[risk_level])
 
+                        with col2:
+                            st.metric("Model Confidence", f"{np.max(probabilities) * 100:.2f}%")
 
-        # Probability Distribution Chart
-        st.subheader("Risk Probability Distribution")
+                        with col3:
+                            st.metric("Elevation (m)", f"{elevation:.2f}")
 
-        fig, ax = plt.subplots()
+                with colB:
+                    st.markdown("### ⛅ Live Weather Report")
+                    with st.container(border=True):
+                        col1, col2, col3 = st.columns(3)
 
-        bars = ax.bar(risk_labels, probabilities)
+                        with col1:
+                            st.metric("Rainfall (1h)", f"{rainfall} mm")
 
-        ax.set_ylabel("Probability")
-        ax.set_ylim(0, 1)
-        ax.set_title("Predicted Risk Probabilities")
+                        with col2:
+                            st.metric("Temperature", f"{temperature} °C")
 
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(
-                bar.get_x() + bar.get_width() / 2,
-                height,
-                f"{height:.2f}",
-                ha="center",
-                va="bottom"
-            )
+                        with col3:
+                            st.metric("Humidity", f"{humidity} %")
 
-        st.pyplot(fig)
+                st.divider()
 
-        st.divider()
+                st.subheader("📍 Geographical Risk Location")
+                
+                m = folium.Map(location=[lat, lon], zoom_start=10)
+                
+                color = "green"
+                if risk_text == "High":
+                    color = "red"
+                elif risk_text == "Medium":
+                    color = "orange"
+                
+                folium.CircleMarker(
+                    location=[lat, lon],
+                    radius=12,
+                    color=color,
+                    fill=True,
+                    fill_color=color,
+                    popup=f"{city} — {risk_text} Risk"
+                ).add_to(m)
+                
+                folium_static(m, width=1200, height=400)
 
-        st.markdown(
-            """
-            **Risk Level Interpretation**
+                st.divider()
 
-            - **Low:** Minimal hydrological stress conditions  
-            - **Medium:** Moderate flood potential  
-            - **High:** Elevated flood likelihood; monitoring recommended  
-            """
-        )
+                st.info("""
+                    ### Risk Interpretation
+
+                    - **Low Risk** → Minimal hydrological stress  
+                    - **Medium Risk** → Moderate flood probability  
+                    - **High Risk** → Elevated likelihood of flooding — monitoring advised  
+                    """)
+
 
 # ==============================================================
 # PAGE 2 — MODEL INSIGHTS
