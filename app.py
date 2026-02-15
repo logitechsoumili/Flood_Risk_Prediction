@@ -8,6 +8,7 @@ import folium
 from streamlit_folium import folium_static
 import plotly.graph_objects as go
 import altair as alt
+import plotly.express as px
 
 # ------------------------------------------------
 # Page Configuration
@@ -340,7 +341,6 @@ elif page == "Heatwave Risk":
                         "Temp (°C)": h_temps
                     })
 
-                    # Create a more visual area chart
                     chart = alt.Chart(temp_df).mark_area(
                         line={'color':'#ff4b4b'},
                         color=alt.Gradient(
@@ -378,69 +378,101 @@ elif page == "Heatwave Risk":
 # PAGE 3 — MODEL INSIGHTS
 # ==============================================================
 elif page == "Model Insights":
-
-    st.title("Model Insights")
-
-    hazard = st.selectbox(
-        "Select Hazard",
-        ["Flood", "Heatwave"]
-    )
-
-    st.divider()
+    st.title("🧠 Model Insights & Performance")
+    hazard = st.selectbox("Select Hazard to Inspect", ["Flood", "Heatwave"])
 
     if hazard == "Flood":
+        st.subheader("🌊 Flood Risk: XGBoost Classifier")
+        
+        cols = st.columns(4)
+        metrics = {
+            "Accuracy": 0.9885,
+            "Precision": 0.98,
+            "Recall": 0.9849,
+            "F1 Score": 0.9849
+        }
+        for col, (label, val) in zip(cols, metrics.items()):
+            col.metric(label, f"{val * 100:.2f}%")
 
-        st.markdown("## Flood Risk Model")
+        st.divider()
 
-        st.markdown("""
-        ### Model Type
-        XGBoost Classifier
+        with st.container(border=True):
+            left_col, right_col = st.columns([1, 1])
+            
+            with left_col:
+                st.markdown("#### 📊 Feature Importance")
+                feature_names = ["Rainfall", "River Discharge", "Elevation", "Water Level", "Historical Flood"]
+                importances = flood_model.feature_importances_
+                importance_data = pd.DataFrame({"Feature": feature_names, "Importance": importances}).sort_values(by="Importance", ascending=True)
+                
+                fig = px.bar(
+                    importance_data,
+                    x="Importance",
+                    y="Feature",
+                    orientation="h",
+                    color="Importance",
+                    color_continuous_scale="Blues"
+                )
 
-        ### Problem Framing
-        Multi-class classification (Low / Medium / High Risk)
+                fig.update_layout(
+                    height=500,
+                    margin=dict(l=20, r=20, t=30, b=20),
+                    coloraxis_showscale=False
+                )
 
-        ### Key Features Used
-        - Rainfall
-        - River Discharge
-        - Water Level
-        - Elevation
-        - Historical Flood Indicator
+                st.plotly_chart(fig, use_container_width=True)
 
-        ### Why XGBoost?
-        - Handles non-linear relationships well
-        - Performs strongly on structured tabular data
-        - Provides feature importance analysis
-
-        ### Validation Strategy
-        Stratified train-test split to maintain class balance.
-        """)
+            with right_col:
+                st.markdown("#### 🎯 Classification Accuracy")
+                st.image("assets/confusion_matrix_flood.png", caption= "Class Labels: 0 = Low Risk, 1 = Moderate Risk, 2 = High Risk")
 
     else:
+        st.subheader("🔥 Heatwave Risk: Random Forest Classifier")
+        
+        cols = st.columns(5)
+        metrics = {
+            "Accuracy": 0.9660,
+            "Precision": 0.9189,
+            "Recall": 0.9016,
+            "F1 Score": 0.9102,
+            "ROC-AUC": 0.9923
+        }
+        for col, (label, val) in zip(cols, metrics.items()):
+            col.metric(label, f"{val * 100:.2f}%")
 
-        st.markdown("## Heatwave Risk Model")
+        st.divider()
 
-        st.markdown("""
-        ### Model Type
-        Random Forest Classifier
+        with st.container(border=True):
+            left_col, right_col = st.columns([1, 1])
 
-        ### Problem Framing
-        Binary classification (Heatwave / No Heatwave)
+            with left_col:
+                st.markdown("#### 📊 Feature Importance")
+                feature_names = ["Min Temp", "Max Humidity", "Min Humidity", "Wind Speed", "Pressure", "Rainfall"]
+                importances = heatwave_model.feature_importances_
+                importance_data = pd.DataFrame({"Feature": feature_names, "Importance": importances}).sort_values(by="Importance", ascending=True)
+                
+                fig = px.bar(
+                    importance_data,
+                    x="Importance",
+                    y="Feature",
+                    orientation="h",
+                    color="Importance",
+                    color_continuous_scale="Oranges"
+                )
 
-        ### Label Definition
-        Heatwave defined using temperature threshold (≥ 40°C).
+                fig.update_layout(
+                    height=500,
+                    margin=dict(l=20, r=20, t=30, b=20),
+                    coloraxis_showscale=False
+                )
 
-        ### Data Leakage Prevention
-        The direct threshold feature (max_temperature) was excluded
-        to ensure the model learned indirect atmospheric patterns.
+                st.plotly_chart(fig, use_container_width=True)
 
-        ### Why Random Forest?
-        - Strong performance on tabular weather data
-        - Robust to class imbalance
-        - Balanced precision and recall (high F1 score)
 
-        ### Evaluation Focus
-        F1 Score prioritized over accuracy due to class imbalance.
-        """)
+            with right_col:
+                st.markdown("#### 🎯 Classification Accuracy")
+                st.image("assets/confusion_matrix_heatwave.png", caption= "Class Labels: 0 = No Heatwave, 1 = Heatwave")
+                
 
 # ==============================================================
 # PAGE 4 — ABOUT
