@@ -9,6 +9,7 @@ from streamlit_folium import folium_static
 import plotly.graph_objects as go
 import altair as alt
 import plotly.express as px
+import streamlit_mermaid as stmd
 
 # ------------------------------------------------
 # Page Configuration
@@ -155,10 +156,14 @@ if page == "Flood Risk":
 
     city = st.text_input("Enter City Name")
 
-    historical = st.selectbox(
-        "Historical Flood Indicator (0 = No, 1 = Yes)",
-        [0, 1]
+    historical_mapping = {"No": 0, "Yes": 1}
+
+    selected_label = st.selectbox(
+        "Was this area affected by floods historically?",
+        options=list(historical_mapping.keys())
     )
+
+    historical = historical_mapping[selected_label]
 
     if st.button("Run Assessment"):
 
@@ -325,13 +330,12 @@ elif page == "Heatwave Risk":
                             st.metric("Humidity", f"{humidity}%")
                             st.metric("Heat Index", f"{heat_index:.2f} °C")
 
-                    with st.container(border=True):
-                        if probability < 0.3:
-                            st.success("### 🟢 Safety Guidance\n* Stay hydrated\n* Light clothing recommended\n* Normal outdoor activity is safe")
-                        elif probability < 0.6:
-                            st.warning("### 🟡 Moderate Heat Stress\n* Avoid prolonged sun exposure\n* Take frequent breaks")
-                        else:
-                            st.error("### 🔴 High Heatwave Alert\n* Avoid outdoor activity\n* Risk of heatstroke\n* Seek cooling shelters")
+                    if probability < 0.3:
+                        st.success("### 🟢 Safety Guidance\n* Stay hydrated\n* Light clothing recommended\n* Normal outdoor activity is safe")
+                    elif probability < 0.6:
+                        st.warning("### 🟡 Moderate Heat Stress\n* Avoid prolonged sun exposure\n* Take frequent breaks")
+                    else:
+                        st.error("### 🔴 High Heatwave Alert\n* Avoid outdoor activity\n* Risk of heatstroke\n* Seek cooling shelters")
 
 
                     st.subheader("🌡️ 24-Hour Temperature Projection")
@@ -468,7 +472,6 @@ elif page == "Model Insights":
 
                 st.plotly_chart(fig, use_container_width=True)
 
-
             with right_col:
                 st.markdown("#### 🎯 Classification Accuracy")
                 st.image("assets/confusion_matrix_heatwave.png", caption= "Class Labels: 0 = No Heatwave, 1 = Heatwave")
@@ -478,41 +481,98 @@ elif page == "Model Insights":
 # PAGE 4 — ABOUT
 # ==============================================================
 else:
+    st.title("ℹ️ About This Project")
+
+    # 1. The Problem Statement: The "Why"
+    st.markdown("""
+    ## The Mission
+    Natural disasters such as floods and heatwaves pose significant risks to human life, infrastructure, and economic stability across vulnerable regions. 
     
-    st.title("About This Project")
+    This system was developed to provide a **real-time, data-driven early warning tool**. By bridging classical machine learning with live meteorological data, the project aims to transform raw weather variables into actionable risk assessments.
+    """)
 
-    st.markdown(
+    st.divider()
+
+    # 2. Visual Workflow Diagram (Mermaid)
+    st.subheader("⚙️ Technical Architecture")
+
+    mermaid_code = """
+        graph LR
+            User((User Input)) --> City[City Name Selection]
+            City --> API{Live API Fetch}
+            
+            API -->|Weather & Elevation| Engine[Feature Engineering Hub]
+            
+            Engine --> Choice{Navigation Selection}
+            
+            Choice -->|Flood Mode| XGB[XGBoost Classifier]
+            Choice -->|Heatwave Mode| RF[Random Forest Classifier]
+            
+            XGB --> UI[Interactive Dashboard]
+            RF --> UI
+            
+            UI --> Safety[Safety Guidance & Maps]
         """
-        ## Multi-Hazard Disaster Risk Prediction System
 
-        This project demonstrates an end-to-end machine learning pipeline
-        for predicting environmental disaster risks using real-world meteorological data.
+    stmd.st_mermaid(mermaid_code, height=175)
+    st.caption("The system utilizes an end-to-end pipeline from real-time data ingestion to multi-model inference.")
 
-        ### Implemented Hazard Modules
+    st.divider()
 
-        🌊 Flood Risk Prediction
-        - Uses hydrological indicators derived from rainfall, discharge and elevation.
-        - Multi-class classification: Low, Medium, High risk.
-        - Model: XGBoost Classifier.
+    # 3. Deep Dive into Hazard Modules
+    col_a, col_b = st.columns(2)
 
-        🔥 Heatwave Risk Prediction
-        - Binary classification of heat stress conditions.
-        - Label derived from temperature threshold.
-        - To prevent data leakage, direct temperature threshold features were excluded.
-        - Model: Random Forest Classifier.
+    with col_a:
+        st.markdown("### 🌊 Flood Module")
+        st.info("""
+        - **Model:** XGBoost Classifier  
+        - **Approach:** Multi-class risk classification (Low / Moderate / High)  
+        - **Inputs:** Rainfall intensity, river discharge levels, elevation, and historical flood indicators  
+        - **Goal:** Assess hydrological vulnerability and provide early flood risk alerts
+        """)
 
-        ### Key ML Concepts Applied
+    with col_b:
+        st.markdown("### 🔥 Heatwave Module")
+        st.warning("""
+        - **Model:** Random Forest Classifier  
+        - **Approach:** Binary heat-stress risk classification  
+        - **Inputs:** Temperature patterns, humidity levels, atmospheric pressure, and wind conditions  
+        - **Goal:** Detect potential heat stress conditions and support preventive action
+        """)
 
-        - Data preprocessing and cleaning
-        - Handling class imbalance using class_weight
-        - Stratified train-test splitting
-        - Model comparison (Logistic, RF, GB, XGBoost)
-        - Feature importance analysis
-        - API-based real-time inference
-        - Deployment using Streamlit
+    st.divider()
 
-        This system bridges classical machine learning and live meteorological deployment.
-        """
-    )
+    # 4. Tech Stack & Future Scope
+    col_left, col_right = st.columns(2)
+
+    with col_left:
+        st.subheader("🛠️ Tech Stack")
+        st.markdown("""
+        - **Languages:** Python
+        - **Libraries:** Scikit-Learn, XGBoost, RandomForest, Pandas, NumPy
+        - **APIs:** OpenWeather, Open-Meteo
+        """)
+
+    with col_right:
+        st.subheader("🚀 Future Scope")
+        st.markdown("""
+        - **Cyclone Integration:** Predictive modeling for coastal wind intensity.
+        - **Time-Series:** Implementing LSTMs for 7-day trend forecasting.
+        - **Mobile Alerts:** SMS-based notifications for offline emergency updates.
+        """)
+
+    st.divider()
+
+    # 5. Connect
+    with st.container(border=True):
+        st.markdown("#### 🤝 Let's Connect")
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.link_button("GitHub", "https://github.com/logitechsoumili", icon="🚀", use_container_width=True)
+        with col2:
+            st.link_button("LinkedIn", "https://linkedin.com/in/logitechsoumili", icon="🔗", use_container_width=True)
+        with col3:
+            st.link_button("Email", "mailto:logitechsoumili@gmail.com", icon="📩", use_container_width=True)
 
 st.divider()
