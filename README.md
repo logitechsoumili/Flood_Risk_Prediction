@@ -1,21 +1,16 @@
 # ⚠️ Multi-Hazard Disaster Risk Prediction System
 
-An end-to-end machine learning system for assessing multiple disaster risks including floods and heatwaves using meteorological and hydrological indicators with advanced machine learning techniques.
+A real-time, end-to-end machine learning system for assessing flood and heatwave risks using live meteorological data and advanced classification models.
+
+This platform integrates weather APIs, feature engineering pipelines, and trained ML models into a deployable Streamlit dashboard for actionable disaster risk assessment.
 
 ---
 
 ## 📌 Problem Statement
 
-India experiences frequent natural disasters, with floods and heatwaves being among the most recurring and destructive hazards. Rapid urbanization, climate variability, and changing weather patterns significantly increase the vulnerability of many regions to multiple disaster types.
+Floods and heatwaves are among the most recurring and destructive climate hazards, especially in rapidly urbanizing and climate-sensitive regions. The increasing frequency of extreme weather events demands scalable, data-driven early warning systems.
 
-Early risk assessment based on environmental indicators can help in:
-
-- Proactive multi-hazard disaster preparedness  
-- Infrastructure and urban planning  
-- Risk-aware decision making  
-- Resource allocation during extreme weather events  
-
-This project aims to develop a comprehensive machine learning-based system that predicts disaster risk levels.
+Traditional forecasting models are often domain-specific and not easily accessible to the public. This project addresses that gap by building a modular, machine learning-based system capable of real-time, multi-hazard risk classification using live environmental indicators.
 
 ---
 
@@ -43,21 +38,20 @@ Disaster_Risk_Prediction/
 
 ### 🌊 Flood Risk Module
 
-- Hydrological indicators split using a stratified train-test strategy.
-- KMeans clustering applied on training data to derive risk categories (Low / Medium / High).
-- XGBoost multi-class classifier trained on derived labels.
-- Cross-validation used for robust evaluation.
-- Feature importance analyzed for interpretability.
+- Hydrological indicators processed and stratified into training and testing sets.
+- Risk categories (Low / Moderate / High) derived using clustering techniques.
+- XGBoost multi-class classifier trained on structured tabular features.
+- Cross-validation applied for robust generalization.
+- Feature importance analyzed for interpretability and risk driver identification.
 
 ---
 
 ### 🔥 Heatwave Risk Module
 
-- Heatwave labeled using temperature threshold (≥ 40°C).
-- Stratified train-test split to handle class imbalance.
-- Direct threshold feature excluded to prevent data leakage.
-- Random Forest classifier selected based on F1 performance.
-- ROC-AUC and feature importance used for evaluation.
+- Binary heat stress classification based on meteorological indicators.
+- Stratified train-test split to address class imbalance.
+- Random Forest classifier selected based on macro F1 and ROC-AUC performance.
+- Feature importance analysis conducted to interpret atmospheric risk drivers.
 
 ---
 
@@ -67,9 +61,9 @@ Disaster_Risk_Prediction/
 
 | Metric | Value |
 |--------|-------|
-| Test Accuracy | **98.8%** |
-| Macro F1 Score | **0.98** |
-| Recall | **0.99** |
+| Test Accuracy | **98.85%** |
+| Macro F1 Score | **98.49%** |
+| Macro Recall | **98.49%** |
 
 **Key Insights:**
 - Strong generalization across stratified test split
@@ -80,14 +74,14 @@ Disaster_Risk_Prediction/
 
 | Metric | Value |
 |--------|-------|
-| Test Accuracy | 96.5% |
-| F1 Score | 91% |
-| ROC-AUC | 99% |
+| Test Accuracy | **96.61%** |
+| F1 Score | **91.02%** |
+| ROC-AUC | **99.23%** |
 
 **Key Insights:**
 - Robust prediction of heat stress conditions
 - Balanced precision and recall for early warning capabilities
-- Top features: Temperature anomalies, humidity, wind patterns
+- Top features: Temperature anomalies, Humidity, Wind Patterns
 
 ---
 
@@ -113,7 +107,8 @@ The system is deployed using **Streamlit** with a multi-page interface including
    - Location-based risk visualization
    - Warning system indicators
 
-   ![Heatwave Dashboard](assets/heatwave_dashboard.png)
+   ![Heatwave Dashboard1](assets/heatwave_dashboard1.png)
+   ![Heatwave Dashboard2](assets/heatwave_dashboard2.png)
 
 3. **Model Insights**
    - Flood model architecture and methodology
@@ -127,6 +122,8 @@ The system is deployed using **Streamlit** with a multi-page interface including
    - ML concepts applied
    - System architecture
    - Development methodology
+
+The application performs real-time API data ingestion, feature engineering, model inference, and interactive visualization within a unified modular architecture.
 
 ---
 
@@ -146,18 +143,12 @@ The system is deployed using **Streamlit** with a multi-page interface including
 
 **Deployment & APIs:**
 - Streamlit (web interface)
-- Requests (HTTP client)
-- Streamlit-folium (map integration)
+- OpenWeather API
+- Open-Meteo API
 
 **Additional Tools:**
 - Joblib (model serialization)
-- Python 3.8+
-
----
-
-## 🌐 API Integration
-
-The system integrates with **OpenWeather API** and **Open-Meteo API** to fetch real-time weather data (rainfall, temperature, humidity) and elevation information, which are used as input features for the flood risk and heatwave risk prediction models to provide accurate, location-based disaster risk assessments.
+- Python 3.10+
 
 ---
 
@@ -182,7 +173,7 @@ The system integrates with **OpenWeather API** and **Open-Meteo API** to fetch r
    ```
 
 3. **Get OpenWeather API Key**
-   - Sign up at [OpenWeather](https://openweathermap.org/api) (free tier available)
+   - Sign up at [OpenWeather](https://openweathermap.org/api)
    - Copy your API key
 
 4. **Configure Streamlit Secrets**
