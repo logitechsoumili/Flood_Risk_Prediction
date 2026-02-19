@@ -44,8 +44,6 @@ Disaster_Risk_Prediction/
 - Cross-validation applied for robust generalization.
 - Feature importance analyzed for interpretability and risk driver identification.
 
----
-
 ### 🔥 Heatwave Risk Module
 
 - Binary heat stress classification based on meteorological indicators.
