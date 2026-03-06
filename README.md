@@ -1,4 +1,4 @@
-# ⚠️ Multi-Hazard Disaster Risk Prediction System
+# Multi-Hazard Disaster Risk Prediction System
 
 A real-time, end-to-end machine learning system for assessing flood and heatwave risks using live meteorological data and advanced classification models.
 
@@ -6,7 +6,7 @@ This platform integrates weather APIs, feature engineering pipelines, and traine
 
 ---
 
-## 📌 Problem Statement
+## Problem Statement
 
 Floods and heatwaves are among the most recurring and destructive climate hazards, especially in rapidly urbanizing and climate-sensitive regions. The increasing frequency of extreme weather events demands scalable, data-driven early warning systems.
 
@@ -14,7 +14,7 @@ Traditional forecasting models are often domain-specific and not easily accessib
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Disaster_Risk_Prediction/
@@ -34,9 +34,9 @@ Disaster_Risk_Prediction/
 
 ---
 
-## 🧠 Methodology
+## Methodology
 
-### 🌊 Flood Risk Module
+### Flood Risk Module
 
 - Hydrological indicators processed and stratified into training and testing sets.
 - Risk categories (Low / Moderate / High) derived using clustering techniques.
@@ -44,7 +44,7 @@ Disaster_Risk_Prediction/
 - Cross-validation applied for robust generalization.
 - Feature importance analyzed for interpretability and risk driver identification.
 
-### 🔥 Heatwave Risk Module
+### Heatwave Risk Module
 
 - Binary heat stress classification based on meteorological indicators.
 - Stratified train-test split to address class imbalance.
@@ -53,7 +53,7 @@ Disaster_Risk_Prediction/
 
 ---
 
-## 📊 Model Performance
+## Model Performance
 
 ### Flood Risk Classifier (XGBoost)
 
@@ -83,7 +83,7 @@ Disaster_Risk_Prediction/
 
 ---
 
-## 💻 Deployment Architecture
+## Deployment Architecture
 
 The system is deployed using **Streamlit** with a multi-page interface including:
 
@@ -125,7 +125,7 @@ The application performs real-time API data ingestion, feature engineering, mode
 
 ---
 
-## 🛠 Technology Stack
+## Technology Stack
 
 **Core Machine Learning:**
 - Scikit-learn (preprocessing, Random Forest)
@@ -150,7 +150,7 @@ The application performs real-time API data ingestion, feature engineering, mode
 
 ---
 
-## 🚀 How to Run Locally
+## How to Run Locally
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -193,7 +193,7 @@ The app will open in your default browser at `http://localhost:8501`
 
 ---
 
-## 📈 Future Enhancements
+## Future Enhancements
 
 - Multi-hazard expansion (Cyclone, Earthquake, Drought modules)
 - Integration with real-world meteorological datasets (IMD, NOAA)
